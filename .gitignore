@@ -102,6 +102,7 @@ dep/ACE_wrappers/ace/Release*
 dep/ACE_wrappers/ace/_UpgradeReport_Files*
 dep/ACE_wrappers/lib/*
 dep/ACE_wrappers/ace/config.h
+dep/ACE_wrappers/ace/ace_vc8.sln
 
 # ned files from excluded dirs
 !dep/ACE_wrappers/ace/ace_message_table.bin
