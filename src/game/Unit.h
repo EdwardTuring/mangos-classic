@@ -42,6 +42,7 @@
 #include "Path.h"
 #include "WorldPacket.h"
 #include "Timer.h"
+#include "Transports.h"
 #include <list>
 
 enum SpellInterruptFlags
@@ -583,6 +584,8 @@ class MovementInfo
         bool HasMovementFlag(MovementFlags f) const { return moveFlags & f; }
         MovementFlags GetMovementFlags() const { return MovementFlags(moveFlags); }
         void SetMovementFlags(MovementFlags f) { moveFlags = f; }
+
+		void SetTransGUID(ObjectGuid guid) { t_guid = guid; }
 
         // Position manipulations
         Position const* GetPos() const { return &pos; }
@@ -1211,6 +1214,20 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         {
             return !hasUnitState(UNIT_STAT_NO_FREE_MOVE) && !GetOwnerGuid();
         }
+
+
+		// Transports
+		Transport* GetTransport() const { return m_transport; }
+		uint64 GetTransGUID() const;
+		void SetTransport(Transport* t) { m_transport = t; }
+		void SetTransGUID(ObjectGuid guid){m_movementInfo.SetTransGUID(guid);}
+
+		float GetTransOffsetX() const { return m_movementInfo.GetTransportPos()->x; }
+		float GetTransOffsetY() const { return m_movementInfo.GetTransportPos()->y; }
+		float GetTransOffsetZ() const { return m_movementInfo.GetTransportPos()->z; }
+		float GetTransOffsetO() const { return m_movementInfo.GetTransportPos()->o; }
+		uint32 GetTransTime() const { return m_movementInfo.GetTransportTime(); }
+
 
         uint32 getLevel() const { return GetUInt32Value(UNIT_FIELD_LEVEL); }
         virtual uint32 GetLevelForTarget(Unit const* /*target*/) const { return getLevel(); }
@@ -1863,6 +1880,10 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         AttackerSet m_attackers;
         Unit* m_attacking;
+
+
+		// Transports
+		Transport* m_transport;
 
         DeathState m_deathState;
 

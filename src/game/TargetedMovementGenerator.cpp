@@ -23,6 +23,7 @@
 #include "Unit.h"
 #include "Creature.h"
 #include "Player.h"
+#include "Transports.h"
 #include "World.h"
 #include "movement/MoveSplineInit.h"
 #include "movement/MoveSpline.h"
@@ -78,6 +79,12 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T& owner, bool up
 
     if (!i_path)
         i_path = new PathFinder(&owner);
+
+	if (i_target->GetTransGUID())
+	{
+		// GetClosePoint() returns wrong Z position when on transports
+		z = i_target->GetPositionZ();
+	}
 
     // allow pets following their master to cheat while generating paths
     bool forceDest = (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->IsPet()
@@ -147,7 +154,30 @@ bool TargetedMovementGeneratorMedium<T, D>::Update(T& owner, const uint32& time_
         else
             targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
     }
+	// Handle transport enter / leave for pets
+	if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
+	{
+		bool target_transport = i_target->GetTransGUID();
+		bool my_transport = owner.GetTransGUID();
+		if (target_transport && !my_transport)
+		{
+			Transport* trans = i_target->GetTransport();
 
+			// Target is on a transport, we need to add ourselves when we enter
+			// Approximate size of transport is 25 (from dock to water)
+			//if (owner.IsWithinDist(trans, 50))
+			trans->AddPetPassenger((Creature*)&owner);
+		}
+		else if (!target_transport && my_transport)
+		{
+			Transport* trans = owner.GetTransport();
+
+			// Target is off transport, we need to remove ourselves when we leave
+			// Approximate size of transport is 25 (from dock to water)
+			//		if (!owner.IsWithinDist(trans, 50))
+			trans->RemovePetPassenger((Creature*)&owner);
+		}
+	}
     if (m_speedChanged || targetMoved)
         _setTargetLocation(owner, targetMoved);
 

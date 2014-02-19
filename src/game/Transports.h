@@ -37,6 +37,9 @@ class Transport : public GameObject
         bool RemovePassenger(Player* passenger);
 
         typedef std::set<Player*> PlayerSet;
+		typedef std::set<Creature*> CreatureSet;
+		bool AddPetPassenger(Creature* passenger);
+		bool RemovePetPassenger(Creature* passenger);
         PlayerSet const& GetPassengers() const { return m_passengers; }
 
     private:
@@ -60,7 +63,7 @@ class Transport : public GameObject
         uint32 m_timer;
 
         PlayerSet m_passengers;
-
+		CreatureSet m_petPassengerSet;
     public:
         WayPointMap m_WayPoints;
         uint32 m_nextNodeTime;

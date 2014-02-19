@@ -507,7 +507,16 @@ void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
         }
         else
         {
-            Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z);
+            for (PlayerSet::const_iterator itr = m_passengers.begin();itr != m_passengers.end();itr ++)
+            {
+				Player *plr = (*itr);
+				Pet *pet = plr->GetPet();
+				if ( pet )
+				{
+					if(!pet->IsRemoved()) {pet->Unsummon(PET_SAVE_NOT_IN_SLOT);}
+				}
+            }
+			Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z);
         }
 
         /*
@@ -559,4 +568,36 @@ void Transport::UpdateForMap(Map const* targetMap)
             if (this != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
     }
+}
+
+bool Transport::AddPetPassenger( Creature* passenger )
+{
+	// Add pets to transport
+	if (!passenger->IsPet())
+		return false;
+
+	// Already on this transport?
+	if (passenger->GetTransGUID() == this->GetGUID())
+		return true;
+
+	passenger->SetTransport(this);
+	passenger->SetTransGUID(GetGUID());
+	m_petPassengerSet.insert(passenger);
+
+	return true;
+}
+
+bool Transport::RemovePetPassenger( Creature* passenger )
+{
+	if (!passenger->IsPet())
+		return false;
+
+	if (m_petPassengerSet.erase(passenger))
+		DETAIL_LOG("Pet %s  , %s.", passenger->GetName(), GetName());
+
+	passenger->SetTransport(NULL);
+	passenger->SetTransGUID(ObjectGuid());
+	passenger->m_movementInfo.ClearTransportData();
+
+	return true;
 }

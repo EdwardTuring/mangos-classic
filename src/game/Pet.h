@@ -190,7 +190,7 @@ class MANGOS_DLL_SPEC Pet : public Creature
             else
                 return Creature::CanSwim();
         }
-
+		bool IsRemoved(){return m_removed;}
         void RegenerateAll(uint32 update_diff) override;    // overwrite Creature::RegenerateAll
         void RegenerateFocus();
         void LooseHappiness();

@@ -184,6 +184,9 @@ Unit::Unit() :
     m_modAttackSpeedPct[OFF_ATTACK] = 1.0f;
     m_modAttackSpeedPct[RANGED_ATTACK] = 1.0f;
 
+
+	 m_transport = 0;
+
     m_extraAttacks = 0;
 
     m_state = 0;
@@ -9117,4 +9120,11 @@ void Unit::DisableSpline()
 {
     m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEFLAG_SPLINE_ENABLED | MOVEFLAG_FORWARD));
     movespline->_Interrupt();
+}
+
+uint64 Unit::GetTransGUID() const
+{
+	if (GetTransport())
+		return GetTransport()->GetGUID();
+	return 0;
 }
